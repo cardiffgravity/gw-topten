@@ -141,7 +141,7 @@ TopTen.prototype.popList = function(){
             dx.tt.value=gwcat.getNominal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
             if (_l.show_err){
                 dx.tt.errneg=gwcat.getMinVal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
-                dx.tt.errneg=gwcat.getMaxVal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
+                dx.tt.errpos=gwcat.getMaxVal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
             }else{
                 dx.tt.errneg=Math.NaN;
                 dx.tt.errpos=Math.NaN;
@@ -293,9 +293,9 @@ TopTen.prototype.addicons = function(d,_l){
 TopTen.prototype.getBarMin = function (_l) {
     var show_err=(_l.show_err)?_l.show_err:false;
     if (show_err){
-        minval=Math.min.apply(null,_l.errneg);
+        minval=Math.min.apply(Math,_l.data.map(function(d){return(d.tt.errneg)}));
     }else{
-        minval=Math.min.apply(null,_l.values);
+        minval=Math.min.apply(Math,_l.data.map(function(d){return(d.tt.value)}));
     }
     bar_min=10**Math.floor(Math.log10(minval))*(Math.floor(minval/10**Math.floor(Math.log10(minval)))-1);
     return bar_min;
@@ -303,9 +303,9 @@ TopTen.prototype.getBarMin = function (_l) {
 TopTen.prototype.getBarMax = function (_l) {
     var show_err=(_l.show_err)?_l.show_err:false;
     if (show_err){
-        maxval=Math.max.apply(null,_l.errpos);
+        maxval=Math.max.apply(Math,_l.data.map(function(d){return(d.tt.errpos)}));
     }else{
-        maxval=Math.max.apply(null,_l.values);
+        maxval=Math.max.apply(null,Math,_l.data.map(function(d){return(d.tt.value)}));
     }
     bar_max=10**Math.floor(Math.log10(maxval))*(Math.floor(maxval/10**Math.floor(Math.log10(maxval)))+1);
     return bar_max;
