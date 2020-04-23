@@ -198,9 +198,9 @@ body{
 .everr.neg{
     top:1.5em;
 }
-/* .evval, .everr{
+.evval, .everr{
     display:none;
-} */
+}
 .icon{
     display:inline-block;
     margin:0.1em;

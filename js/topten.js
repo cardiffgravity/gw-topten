@@ -16,6 +16,9 @@ function makeTopTen(){
     return this;
 }
 
+var em2px=16;
+var px2em=1/em2px;
+
 function TopTen(){
     this.init();
     return this;
@@ -37,7 +40,8 @@ TopTen.prototype.init = function(holderid='top10holder',listInit='mfinal'){
         // 'loc':{sortcol:'deltaOmega',order:'asc',format:'',namelink:false,hoverlink:true,
         //     graph:{type:'bar',bar:'#000000',bar_min:1,bar_max:40000,bar_log:true}},
         'loc':{sortcol:'deltaOmega',order:'asc',format:'',namelink:false,hoverlink:true,
-            graph:{type:'bar',bar:'#000000',bar_min:1,bar_max:40000,bar_log:true}},
+            graph:{type:'bar',bar:'#000000',bar_min:1,bar_max:40000,bar_log:true},
+            infotype:"skyloc"},
         'delay':{sortcol:'Delay',valcol:'Delay',order:'asc',format:'',title:'Days waiting',
             graph:{type:'none'}},
         'distance':{sortcol:'DL',order:'asc',format:'',title:'Distance',show_err:true,
@@ -175,13 +179,13 @@ TopTen.prototype.makeList = function(){
     // add entries for list
     var _t10=this;
     var _l=this.list;
-    console.log(_l,this.listName);
+    console.log(this.listName,':',_l);
     var ldiv=this.ld;
     // console.log(this)
     
     d3.select('#list-title')
         .html(this.gettitle())
-    d3.select('#order').on("click",function(){
+    d3.select('#order-ind').on("click",function(){
         _t10.reorderList();
     })
     getClass=function(d){
@@ -196,12 +200,16 @@ TopTen.prototype.makeList = function(){
         .attr('class',getClass)
         .attr('id',function(d){return 'item-'+d.tt.n;})
         .html(function(d){return _t10.gethtml(d,_l)});
-    if (_l.graph.type=='icon' || _l.graph.type=='iconfn'){
-        ldiv.each(function(d){_t10.addicons(d,_l);})
-    }
-    if (_l.graph.type=='bar'){
-        ldiv.each(function(d){_t10.addbar(d,_l);})
-    }
+
+    ldiv.each(function(d){
+        _t10.addinfo(d,_l);
+        if (_l.graph.type=='bar'){
+            _t10.addbar(d,_l);
+        }
+        if (_l.graph.type=='icon' || _l.graph.type=='iconfn'){
+            _t10.addicons(d,_l);
+        }
+    })
 }
 
 TopTen.prototype.gettitle = function(){
@@ -209,7 +217,7 @@ TopTen.prototype.gettitle = function(){
     var _l=this.list;
     title=(_l.title)?_l.title:gwcat.paramName((_l.valcol)?_l.valcol:_l.sortcol);
     order=(_l.order=='asc')?'&uarr;':'&darr;'
-    titorder='<div class="listorder" id="order-'+l+'">'+order+'</div>';
+    titorder='<div class="listorder" id="order-ind">'+order+'</div>';
     titname='<div class="listname">'+title+'</div>';
     unit=(_l.unit)?_l.unit:gwcat.paramUnit((_l.valcol)?_l.valcol:_l.sortcol);
     // unit=gwcat.paramUnit(_l.sortcol)
@@ -226,9 +234,9 @@ TopTen.prototype.gethtml = function(d,_l){
     // console.log(d.tt.value);
     var val=setPrecision(d.tt.value,sigfig,_l.format);
     var htmlerr='';
-    if (d.tt.valtype=='lower'){val='> '+val}
-    else if (d.valtype=='upper'){val='< '+val}
-    if (_l.show_err && d.tt.valtype=='best'){
+    if (d.tt.valType=='lower'){val='> '+val}
+    else if (d.valType=='upper'){val='< '+val}
+    if (_l.show_err && d.tt.valType=='best'){
         fixprec=getprecision(d.tt.value,sigfig);
         errpos=setPrecision(d.tt.errpos-d.value,sigfig,fixprec=fixprec,format=_l.format)
         errneg=setPrecision(d.tt.value-d.errneg,sigfig,fixprec=fixprec,format=_l.format)
@@ -252,6 +260,83 @@ TopTen.prototype.gethtml = function(d,_l){
     // htmlhov='<div class="info">'+this.getinfo(l,n)+'</div>';
     // htmlerr
     return(htmlname+htmlicon+htmlval+htmlerr)
+}
+TopTen.prototype.addinfo = function(d,_l){
+    var ih="",iw="",it="",ib="";
+    if (_l.infotype=='skyloc'){
+        var hovlink=gwcat.getLink(d.name,'skymap-thumbnail','Cartesian zoomed');
+        var hovref='';
+        var hovimg='';
+        if(hovlink.length>0){
+            // console.log(link);
+            hovimg='<img class="infoimg skyloc" src="'+hovlink[0].url+'">'
+            hovref='<div class="infolink skyloc"><a title="'+hovlink[0].text+'" href="'+hovlink[0].url+'">'+hovlink[0].text+'</a></div>';
+        }
+        // console.log(l,n,hovlink,hovref)
+        // evdiv=d3.select('#item-'+d.tt.n);
+        d3.select('#item-'+d.tt.n).append('div')
+            .attr('class','info')
+            .attr('id','info-'+d.tt.n)
+            .html('<div class="infotxt wide">'+hovimg+hovref+'</div>')
+        lndiv=d3.select('#info-'+d.tt.n)
+        // var iw=lndiv.select('.infotxt').node().clientWidth;
+        iw=Math.max(em2px*11,lndiv.select('.infolink').node().clientWidth);
+        // lndiv.select('.infotxt').style('width',iw);
+        // var ih=lndiv.select('.infotxt').node().clientHeight;
+        // var ih="1em";
+        // lndiv.select('.infotxt').style('height',ih);
+        lndiv.select('.infotxt').style('top',0);
+        console.log(l,n,iw,ih);
+    }else{
+        sigfig=(_l.hasOwnProperty('sigfig'))?_l.sigfig:gwcat.datadict[_l.sortcol].sigfig;
+        var val=setPrecision(d.tt.value,sigfig,_l.format);
+        if (d.tt.value=='lower'){val='> '+val}
+        else if (d.tt.valType=='upper'){val='< '+val}
+        var htmlval='<div class="infoval">'+val+'</div>';
+        if (_l.show_err && d.tt.valType=='best'){
+            var fixprec=getprecision(d.tt.errpos,sigfig,_l.format);
+            var errpos=setPrecision(d.tt.errpos-d.tt.value,sigfig,fixprec=fixprec,_l.format)
+            var errneg=setPrecision(d.tt.value-d.tt.errneg,sigfig,fixprec=fixprec,_l.format)
+            var htmlerr='<div class="infoerr pos">+'+errpos+'</div><div class="infoerr neg">&ndash;'+errneg+'</div>'
+        }else{
+            var htmlerr='';
+        }
+        var unit=(_l.unit)?_l.unit:gwcat.paramUnit((_l.valcol)?_l.valcol:_l.sortcol);
+        // unit=gwcat.paramUnit(listitem.sortcol)
+        unit=unit.replace('M_sun','M<sub>☉</sub>')
+        reSup=/\^(-?[0-9]*)(?=[\s/]|$)/g
+        unit=unit.replace(reSup,"<sup>$1</sup> ");
+        if (d.tt.label){unit=unit+' '+d.tt.label}
+        var htmlunit='<div class="infounit">'+unit+'</div>';
+        d3.select('#item-'+d.tt.n).append('div')
+            .attr('class','info')
+            .attr('id','info-'+d.tt.n)
+            .html('<div class="infotxt">'+htmlval+htmlerr+htmlunit+'</div>')
+
+        // set size of objects
+        lndiv=d3.select('#info-'+d.tt.n)
+        var vw=lndiv.select('.infoval').node().clientWidth+10;
+        var uw=lndiv.select('.infounit').node().clientWidth;
+        var vh=lndiv.select('.infoval').node().clientHeight;
+        var uh=lndiv.select('.infounit').node().clientHeight;
+        lndiv.selectAll('.infoerr').style('left',vw);
+        var ew=0, eh=0;
+        if (_l.show_err && d.tt.valType=='best'){
+            ew=Math.max(lndiv.select('.infoerr.pos').node().clientWidth,lndiv.select('.infoerr.neg').node().clientWidth);
+            eh=Math.max(lndiv.select('.infoerr.pos').node().clientHeight,lndiv.select('.infoerr.neg').node().clientHeight);
+        }
+        lndiv.select('.infounit').style('left',vw+ew);
+        iw=vw+ew+uw;
+        ih=Math.max(vh,eh,uh);
+    }
+    var lh=d3.select('#item-'+d.tt.n).node().clientHeight;
+    if (iw){lndiv.select('.infotxt').style('width',iw);}
+    if (ih){lndiv.select('.infotxt').style('height',ih);}
+    itop=(it)?it:0;
+    
+    lndiv.select('.infotxt').style('top',(it)?it:0);
+        // return('<div class="infotxt">'+htmlval+htmlerr+htmlunit+'</div>');
+    return;
 }
 TopTen.prototype.addicons = function(d,_l){
     // add icons to an event entry
