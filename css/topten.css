@@ -1,21 +1,28 @@
 body{
     font: 16px sans-serif;
 }
-.keyouter{
+.keyouter, .buildouter{
     display:inline-block;
-    padding-bottom:1.5em;
+    padding-bottom:3px;
     overflow-x: hidden;
     width:40em;
-    padding-left:0.5em;
-    padding-right:0.5em;
+    margin-left:0.5em;
+    margin-right:0.5em;
+    margin-bottom:1em;
+    border: 3px solid #662d8f;
+    border-radius:0.5em;
 }
 #selectorholder{
     display:inline-block;
     max-width:40em;
-    padding-left:0.5em;
-    padding-right:0.5em;
-    padding-bottom:1.5em;
+    margin-left:0.5em;
+    margin-right:0.5em;
+    margin-bottom:1em;
+    padding-bottom:3px;
     overflow-x: hidden;
+    border: 3px solid #662d8f;
+    border-radius:0.5em;
+    
 }
 .selector, .key-item{
     display:inline-block;
@@ -23,9 +30,12 @@ body{
     min-height:1.5em;
     padding-top:0.6em;
     padding-left:1em;
-    margin-right:1em;
+    margin-right:0.5em;
+    margin-left:0.5em;
     overflow-x:hidden;
     border-bottom: white solid 3px;
+    border-top: white solid 3px;
+    border-radius:0.5em;
     position:relative;
     background-color:#e9e2ef;
 }
@@ -84,12 +94,16 @@ body{
     max-height:100em;
     display:inline-block;
     visibility:visible;
-    width:32em;
-    padding-left:0.5em;
-    padding-right:18em;
-    padding-bottom:1.5em;
+    width:40em;
+    margin-left:0.5em;
+    margin-right:0.5em;
+    padding-bottom:.5em;
+    border: 3px solid #662d8f;
+    background-color: 662d8f;
+    border-radius:0.5em;
     transition: max-height 1s;
     transition-timing-function: ease-in-out;
+    margin-bottom:1em;
 }
 .evname, .evgraph, .evval, .listname, .listunit, .listorder{
     display:inline-block;
@@ -98,7 +112,7 @@ body{
 .list-item.large .evname{
     top:45%;
 }
-.list-title, .key-title{
+.list-title, .key-title, .build-title{
     display:block;
     min-height:2.5em;
     background-color: #662d8f;
@@ -107,6 +121,8 @@ body{
     font-weight:bold;
     color:white;
     position:relative;
+    z-index:20;
+    margin-bottom:4px;
 }
 .listorder{
     width:1.5em;
@@ -137,7 +153,7 @@ body{
     bottom:0.75em;
     display:none;
 }
-.list-item{
+.list-item, .build-item{
     display:block;
     min-height:1.5em;
     padding-top:0.6em;
@@ -173,11 +189,12 @@ body{
     width:25em;
 }
 .evgraph{
-    width:22em;
+    width:30em;
     text-align:left;
     padding-left:0.5em;
     position:relative;
-    left:6.5em
+    left:6.5em;
+    z-index:20;
 }
 .evval{
     width:5.5em;
