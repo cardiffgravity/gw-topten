@@ -70,17 +70,17 @@ body{
     position:absolute;
     bottom:0.5em;
 }
-.top10list{
+/* .top10list{
     display:inline-block;
     visibility:hidden;
-    /* overflow-x: hidden; */
+    overflow-x: hidden;
     overflow-y:hidden;
     max-height:0;
     width:0;
     transition: max-height 1s;
     transition-timing-function: ease-in-out;
-}
-.top10list.selected{
+} */
+#top10holder{
     max-height:100em;
     display:inline-block;
     visibility:visible;
@@ -198,9 +198,9 @@ body{
 .everr.neg{
     top:1.5em;
 }
-.evval, .everr{
+/* .evval, .everr{
     display:none;
-}
+} */
 .icon{
     display:inline-block;
     margin:0.1em;
