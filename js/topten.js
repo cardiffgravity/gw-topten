@@ -234,7 +234,9 @@ TopTen.prototype.makeList = function(){
     if (_l.graph.type=='icon' || _l.graph.type=='iconfn'){
         ldiv.each(function(d){_t10.addicons(d,_l);})
     }
-
+    if (_l.graph.type=='bar'){
+        ldiv.each(function(d){_t10.addbar(d,_l);})
+    }
     // if (listitem.graph.type=='icon'){
     //     // add icon to key
     //     if(listitem.graph.iconlabel){
@@ -362,6 +364,106 @@ TopTen.prototype.addicons = function(d,_l){
         partimg.style('width',partimgwid);
     }
     return
+}
+TopTen.prototype.getBarMin = function (_l) {
+    var show_err=(_l.show_err)?_l.show_err:false;
+    if (show_err){
+        minval=Math.min.apply(null,_l.errneg);
+    }else{
+        minval=Math.min.apply(null,_l.values);
+    }
+    bar_min=10**Math.floor(Math.log10(minval))*(Math.floor(minval/10**Math.floor(Math.log10(minval)))-1);
+    return bar_min;
+};
+TopTen.prototype.getBarMax = function (_l) {
+    var show_err=(_l.show_err)?_l.show_err:false;
+    if (show_err){
+        maxval=Math.max.apply(null,_l.errpos);
+    }else{
+        maxval=Math.max.apply(null,_l.values);
+    }
+    bar_max=10**Math.floor(Math.log10(maxval))*(Math.floor(maxval/10**Math.floor(Math.log10(maxval)))+1);
+    return bar_max;
+};
+TopTen.prototype.addbar = function(d,_l){
+    console.log('add bar',d.name,d.tt.value)
+    // add bar for an event, with error bars if values are present
+    var show_err=(_l.show_err)?_l.show_err:false;
+    var bar_log=(_l.graph.bar_log)?_l.graph.bar_log:false;
+    var bar_min=(_l.graph.bar_min)?_l.graph.bar_min:0;
+    var bar_max=(_l.graph.bar_max)?_l.graph.bar_max:1;
+    var bar_img=(_l.graph.bar_img)?_l.graph.bar_img:false;
+    var bar_height=(_l.graph.bar_height)?_l.graph.bar_height:'auto';
+    var bar_col=(_l.graph.bar)?_l.graph.bar_col:false;
+    if (bar_max=='auto'){
+        bar_max=this.getBarMax(_l)
+    }
+    if (_l.graph.bar_min=='auto'){
+        bar_min=this.getBarMin(_l)
+    }
+    if (bar_log){
+        barlen=100*(Math.log(d.tt.value)-Math.log(bar_min))/(Math.log(bar_max)-Math.log(bar_min));}
+    else{barlen=100*(d.tt.value-bar_min)/(bar_max-bar_min);}
+    console.log(bar_min,bar_max,barlen);
+    evdiv=d3.select('#item-'+d.tt.n+' .evgraph');
+    if (bar_img){
+        evdiv.append('div')
+            .attr('class','bar-bg img')
+            .attr('id','bar-bg-'+d.tt.n);
+        var barbg=evdiv.select('#bar-bg-'+d.tt.n);
+        var barbgw=barbg.node().clientWidth;
+        // barbg.classed('barbg-img',true);
+        barbg.append('div')
+            .attr('class','barimg')
+            .attr('id','barimg-'+'-'+d.tt.n)
+            .style('width',(barlen)+'%');
+        barbg.select('.barimg').append('img')
+            .attr('src',bar_img)
+            .style('width',barbgw);
+        // if ()
+        evdiv.style('height',bar_height);
+    }else{
+        evdiv.append('div')
+            .attr('class','bar-bg')
+            .attr('id','bar-bg-'+d.tt.n)
+        var barbg=evdiv.select('#bar-bg-'+d.tt.n)
+        barbg.append('div')
+            .attr('class','bar')
+            .attr('id','bar-'+d.tt.n)
+            .style('width',(barlen)+'%');
+    }
+    // var barbg=evdiv.select('#bar-bg-'+l+'-'+n)
+    if (show_err){
+        if (bar_log){
+            errmin=100*(Math.log(d.tt.errneg)-Math.log(bar_min))/(Math.log(bar_max)-Math.log(bar_min));
+            errmax=100*(Math.log(d.tt.errpos)-Math.log(bar_min))/(Math.log(bar_max)-Math.log(bar_min));
+        }else{
+            errmin=100*(d.tt.errneg-bar_min)/(bar_max-bar_min);
+            errmax=100*(d.tt.errpos-bar_min)/(bar_max-bar_min);
+        }
+        barbg.append('div')
+            .attr('class','errbar neg')
+            .attr('id','errbar-'+d.tt.n)
+            .style('left',(errmin)+'%')
+            .style('width',(barlen-errmin)+'%');
+        barbg.append('div')
+            .attr('class','errbar pos')
+            .attr('id','errbar-'+d.tt.n)
+            .style('left',(barlen)+'%')
+            .style('width',(errmax-barlen)+'%');
+        barbg.append('div')
+            .attr('class','errmin2')
+            .attr('id','errmin2-'+d.tt.n)
+            .style('left',(errmin)+'%');
+        barbg.append('div')
+            .attr('class','errmax2')
+            .attr('id','errmax2-'+d.tt.n)
+            .style('left',(errmax)+'%');
+    }
+    // if (bar_img){
+    //     barbg
+    // 
+    // }
 }
 function addColumn(colname,fncalc,dict){
     // add a column to the data
