@@ -23,7 +23,8 @@ function TopTen(){
     this.init();
     return this;
 }
-TopTen.prototype.init = function(holderid='top10holder',listInit='mfinal'){
+TopTen.prototype.init = function(holderid='top10holder',listInit='distance'){
+    var _t10=this;
     this.N=10;
     this.hid=holderid;
     this.lid='list-holder';
@@ -45,7 +46,7 @@ TopTen.prototype.init = function(holderid='top10holder',listInit='mfinal'){
         'delay':{sortcol:'Delay',valcol:'Delay',order:'asc',format:'',title:'Days waiting',
             graph:{type:'none'}},
         'distance':{sortcol:'DL',order:'asc',format:'',title:'Distance',show_err:true,
-            graph:{type:'bar',bar:'#000000',bar_max:'auto'}},
+            graph:{type:'bar',bar:'#000000',bar_max:'auto',scale:'distance'}},
         'date':{sortcol:'GPS',valcol:'UTC',order:'asc',format:'date',title:'Detection Date',unit:'UTC',
             graph:{type:'none'}},
         'FAR':{sortcol:'FAR',order:'asc',format:'',sigfig:2,
@@ -57,6 +58,18 @@ TopTen.prototype.init = function(holderid='top10holder',listInit='mfinal'){
         'SNR':{sortcol:'rho',order:'dec',format:'',default:false,
             graph:{type:'bar',bar:'#ffffff',bar_img:'img/snrwave.svg',bar_min:'auto',bar_max:30,bar_height:'3em'}},
     };
+    this.scales={
+        distance:[{xfn:function(){return _t10.getBarMin()},l:'0'},
+        {x:17,l:'Virgo Cluster'},
+        {x:68,l:'Norma Cluster'},
+        {x:100,l:'Coma Cluster'},
+        {x:200,l:'Shapley Supercluster'},
+        {x:600,l:'Caelum Supercluster'},
+        // {x:750,l:'3C373'},
+        {x:1100,l:'Bullet Cluster'},
+        {x:3200,l:'Abell 732'},
+        {xfn:function(){return _t10.getBarMax()},lfn:function(){return _t10.getBarMax()+' Mpc'}}]
+    }
     this.buildSelector();
     this.makeDiv();
     this.setList(listInit);
@@ -120,8 +133,12 @@ TopTen.prototype.makeDiv = function(holderid='top10holder'){
         .attr('class','list-title')
         .attr('id','list-title');
     this.hd.append('div')
-        .attr('class','top10list selected')
+        .attr('class','top10list')
         .attr('id',this.lid);
+    this.hd.append('div')
+        .attr('class','list-scale hidden')
+        .attr('id','list-scale') 
+        .html('<div class="evgraph"><div class="scale-bg"></div></div>');
     this.ld=d3.select('#'+this.lid);
     // console.log(this.lid,this.ld);
     return;
@@ -210,6 +227,12 @@ TopTen.prototype.makeList = function(){
             _t10.addicons(d,_l);
         }
     })
+    if (_l.graph.scale){
+        d3.select('#list-scale').classed('hidden',false)
+        _t10.addScale(_l)
+    }else{
+        d3.select('#list-scale').classed('hidden',true)
+    }
 }
 
 TopTen.prototype.gettitle = function(){
@@ -255,7 +278,7 @@ TopTen.prototype.gethtml = function(d,_l){
         }
     }
     htmlname=(namelink) ? '<div class="evname">'+namelink+d.name+'</a></div>' : '<div class="evname">'+d.name+'</div>';
-    htmlicon='<div class="evgraph">'+''+'</div>';
+    htmlicon='<div class="evgraph"></div>';
     htmlval='<div class="evval">'+val+'</div>';
     // htmlhov='<div class="info">'+this.getinfo(l,n)+'</div>';
     // htmlerr
@@ -375,45 +398,63 @@ TopTen.prototype.addicons = function(d,_l){
     }
     return
 }
-TopTen.prototype.getBarMin = function (_l) {
+TopTen.prototype.getBarMin = function () {
+    var _l=this.list;
     var show_err=(_l.show_err)?_l.show_err:false;
-    if (show_err){
-        minval=Math.min.apply(Math,_l.data.map(function(d){return(d.tt.errneg)}));
-    }else{
-        minval=Math.min.apply(Math,_l.data.map(function(d){return(d.tt.value)}));
+    bar_min=(_l.graph.bar_min)?_l.graph.bar_min:0;
+    if (bar_min=='auto'){
+        if (show_err){
+            minval=Math.min.apply(Math,_l.data.map(function(d){return(d.tt.errneg)}));
+        }else{
+            minval=Math.min.apply(Math,_l.data.map(function(d){return(d.tt.value)}));
+        }
+        bar_min=10**Math.floor(Math.log10(minval))*(Math.floor(minval/10**Math.floor(Math.log10(minval)))-1);
     }
-    bar_min=10**Math.floor(Math.log10(minval))*(Math.floor(minval/10**Math.floor(Math.log10(minval)))-1);
     return bar_min;
 };
-TopTen.prototype.getBarMax = function (_l) {
+TopTen.prototype.getBarMax = function () {
+    var _l=this.list;
     var show_err=(_l.show_err)?_l.show_err:false;
-    if (show_err){
-        maxval=Math.max.apply(Math,_l.data.map(function(d){return(d.tt.errpos)}));
-    }else{
-        maxval=Math.max.apply(null,Math,_l.data.map(function(d){return(d.tt.value)}));
+    bar_max=(_l.graph.bar_max)?_l.graph.bar_max:1;
+    if (bar_max=='auto'){
+        if (show_err){
+            maxval=Math.max.apply(Math,_l.data.map(function(d){return(d.tt.errpos)}));
+        }else{
+            maxval=Math.max.apply(null,Math,_l.data.map(function(d){return(d.tt.value)}));
+        }
+        bar_max=10**Math.floor(Math.log10(maxval))*(Math.floor(maxval/10**Math.floor(Math.log10(maxval)))+1);
     }
-    bar_max=10**Math.floor(Math.log10(maxval))*(Math.floor(maxval/10**Math.floor(Math.log10(maxval)))+1);
     return bar_max;
 };
+TopTen.prototype.getBarLen = function(val,_l){
+    var bar_log=(_l.graph.bar_log)?_l.graph.bar_log:false;
+    var bmin=_l.graph.bar_minv;
+    var bmax=_l.graph.bar_maxv;
+    if (bar_log){
+        barlen=100*(Math.log(val)-Math.log(bmin))/(Math.log(bmax)-Math.log(bmin));}
+    else{barlen=100*(val-bmin)/(bmax-bmin);}
+    return barlen;
+}
 TopTen.prototype.addbar = function(d,_l){
     console.log('add bar',d.name,d.tt.value)
     // add bar for an event, with error bars if values are present
     var show_err=(_l.show_err)?_l.show_err:false;
     var bar_log=(_l.graph.bar_log)?_l.graph.bar_log:false;
-    var bar_min=(_l.graph.bar_min)?_l.graph.bar_min:0;
-    var bar_max=(_l.graph.bar_max)?_l.graph.bar_max:1;
     var bar_img=(_l.graph.bar_img)?_l.graph.bar_img:false;
     var bar_height=(_l.graph.bar_height)?_l.graph.bar_height:'auto';
     var bar_col=(_l.graph.bar)?_l.graph.bar_col:false;
-    if (bar_max=='auto'){
-        bar_max=this.getBarMax(_l)
-    }
-    if (_l.graph.bar_min=='auto'){
-        bar_min=this.getBarMin(_l)
-    }
-    if (bar_log){
-        barlen=100*(Math.log(d.tt.value)-Math.log(bar_min))/(Math.log(bar_max)-Math.log(bar_min));}
-    else{barlen=100*(d.tt.value-bar_min)/(bar_max-bar_min);}
+    _l.graph.bar_minv=this.getBarMin();
+    _l.graph.bar_maxv=this.getBarMax();
+    // if (bar_max=='auto'){
+    //     bar_max=this.getBarMax(_l)
+    // }
+    // if (_l.graph.bar_min=='auto'){
+    //     bar_min=this.getBarMin(_l)
+    // }
+    var barlen=this.getBarLen(d.tt.value,_l);
+    // if (bar_log){
+    //     barlen=100*(Math.log(d.tt.value)-Math.log(bar_min))/(Math.log(bar_max)-Math.log(bar_min));}
+    // else{barlen=100*(d.tt.value-bar_min)/(bar_max-bar_min);}
     console.log(bar_min,bar_max,barlen);
     evdiv=d3.select('#item-'+d.tt.n+' .evgraph');
     if (bar_img){
@@ -445,11 +486,13 @@ TopTen.prototype.addbar = function(d,_l){
     // var barbg=evdiv.select('#bar-bg-'+l+'-'+n)
     if (show_err){
         if (bar_log){
-            errmin=100*(Math.log(d.tt.errneg)-Math.log(bar_min))/(Math.log(bar_max)-Math.log(bar_min));
-            errmax=100*(Math.log(d.tt.errpos)-Math.log(bar_min))/(Math.log(bar_max)-Math.log(bar_min));
+            errmin=100*(Math.log(d.tt.errneg)-Math.log(_l.graph.bar_minv))/
+                (Math.log(_l.graph.bar_maxv)-Math.log(_l.graph.bar_minv));
+            errmax=100*(Math.log(d.tt.errpos)-Math.log(_l.graph.bar_minv))/
+                (Math.log(_l.graph.bar_maxv)-Math.log(_l.graph.bar_minv));
         }else{
-            errmin=100*(d.tt.errneg-bar_min)/(bar_max-bar_min);
-            errmax=100*(d.tt.errpos-bar_min)/(bar_max-bar_min);
+            errmin=100*(d.tt.errneg-_l.graph.bar_minv)/(_l.graph.bar_maxv-_l.graph.bar_minv);
+            errmax=100*(d.tt.errpos-_l.graph.bar_minv)/(_l.graph.bar_maxv-_l.graph.bar_minv);
         }
         barbg.append('div')
             .attr('class','errbar neg')
@@ -474,6 +517,55 @@ TopTen.prototype.addbar = function(d,_l){
     //     barbg
     // 
     // }
+}
+TopTen.prototype.addScale = function(_l){
+    if (!this.scales[_l.graph.scale]){
+        return;
+    }else{
+        var lsc=d3.select('#list-scale > .evgraph > .scale-bg');
+        // get top10 list height
+        var t10h=0;
+        d3.selectAll('.list-item').each(function(){
+            t10h+=this.clientHeight;
+            // console.log(this.style('height'))
+        })
+        lsc.selectAll('*').remove()
+        for (s in this.scales[_l.graph.scale]){
+            var sc=this.scales[_l.graph.scale][s];
+            if (sc.xfn){
+                sc.x=sc.xfn();
+            }
+            if (sc.lfn){
+                sc.l=sc.lfn();
+            }
+            if ((sc.x>=_l.graph.bar_minv)&(sc.x<=_l.graph.bar_maxv)){
+                var scx=this.getBarLen(sc.x,_l);
+                if ((scx>0)&(scx<2)){
+                    continue;
+                }
+                
+                lsc.append('div')
+                    .attr('class','scale-item')
+                    .attr('id','scale-item-'+s)
+                    .style('left',(scx)+'%')
+                    .style('top',(-t10h-34)+'px')
+                    .style('height',(t10h+34+10)+'px');
+                lsc.append('div')
+                    .attr('class','scale-label')
+                    .attr('id','scale-label-'+s)
+                    .style('left',(scx)+'%')
+                    // .style('top','10px')
+                    .html(sc.l);
+            }
+        }
+        var sclw=0;
+        d3.selectAll('.scale-label').each(function(){
+            this.style.top=(this.clientWidth+10)+'px'
+            sclw=(this.clientWidth>sclw)?this.clientWidth:sclw;
+        })
+        d3.select('#list-scale')
+            .style('height',(sclw+20)+'px');
+    }
 }
 function addColumn(colname,fncalc,dict){
     // add a column to the data
