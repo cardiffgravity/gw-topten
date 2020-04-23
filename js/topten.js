@@ -56,14 +56,6 @@ TopTen.prototype.init = function(holderid='top10holder',listInit='mfinal'){
     this.buildSelector();
     this.makeDiv();
     this.setList(listInit);
-    // console.log(this.list);
-    
-    // this.makeList(listInit);
-    // for (l in this.lists){
-    //     if (this.lists[l].default){
-    //         this.selectList(l);
-    //     }
-    // }
 }
 TopTen.prototype.buildSelector = function(holderid='selectorholder'){
     var _t10=this;
@@ -136,15 +128,6 @@ TopTen.prototype.popList = function(){
     var _l=this.list;
     gwcat.orderData(_l.sortcol,(_l.order=='dec')?true:false);
     _l.data=[]
-    // _l.names=[];
-    // _l.values=[];
-    // _l.valtypes=[];
-    // _l.errpos=[];
-    // _l.errneg=[];
-    // _l.labels=[]
-    // if (_l.namelink){_l.namelinks=[]}
-    // if (_l.vallink){_l.vallinks=[]}
-    // if (_l.hoverlink){_l.hoverlinks=[]}
     var num=0;
     for (n in gwcat.dataOrder){
         if (num>=10){continue}
@@ -168,24 +151,6 @@ TopTen.prototype.popList = function(){
             }else{
                 dx.tt.label='';
             }
-            // _l.data.push(gwcat.data[idx])
-            // _l.ndx[ames.push(gwcat.dataOrder[n]);
-            // _l.valtypes.push(gwcat.getParamType(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol));
-            // _l.values.push(gwcat.getNominal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol))
-            // if (_l.show_err){
-            //     _l.errneg.push(
-            //         gwcat.getMinVal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol));
-            //     _l.errpos.push(gwcat.getMaxVal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol));
-            // }else{
-            //     _l.errpos.push(Math.NaN);
-            //     _l.errneg.push(Math.NaN);
-            // }
-            // console.log(n,gwcat.dataOrder[n])
-            // if (gwcat.data[gwcat.event2idx(gwcat.dataOrder[n])][(_l.valcol)?_l.valcol:_l.sortcol].label){
-            //     _l.labels.push(gwcat.data[gwcat.event2idx(gwcat.dataOrder[n])][(_l.valcol)?_l.valcol:_l.sortcol].label);
-            // }else{
-            //     _l.labels.push('');
-            // }
             num+=1;
             _l.data.push(dx);
         }
@@ -237,46 +202,6 @@ TopTen.prototype.makeList = function(){
     if (_l.graph.type=='bar'){
         ldiv.each(function(d){_t10.addbar(d,_l);})
     }
-    // if (listitem.graph.type=='icon'){
-    //     // add icon to key
-    //     if(listitem.graph.iconlabel){
-    //         iconlabel=listitem.graph.iconlabel;
-    //     }else{
-    //         iconlabel=listitem.graph.icon_unit+' x '+
-    //         gwcat.paramUnit((listitem.valcol)?listitem.valcol:listitem.sortcol);
-    //     };
-    //     iconlabel.replace('M_sun',)
-    //     iconlabel=iconlabel.replace('M_sun','M<sub>☉</sub>')
-    //     reSup=/\^(-?[0-9]*)(?=[\s/]|$)/g
-    //     iconlabel=iconlabel.replace(reSup,"<sup>$1</sup> ");
-    //     var keyhtml='<div class="key-icon"><img src="'+listitem.graph.icon+'">'+
-    //         '<div class="evname key-icon">'+iconlabel+'</div></div>'
-    //     d3.select('#keyholder > .keyouter').append('div')
-    //         .attr('class','key-item key-icon '+l)
-    //         .html(keyhtml)
-    // }
-    // for (n in listitem.names){
-    //     evtype=(listitem.names[n][0]=='G')?'GW':'Cand';
-    //     evodd=(n%2==0)?'even':'odd';
-    //     ldiv.append('div')
-    //         .attr('class','list-item '+evtype+' '+evodd)
-    //         .attr('id',l+'_'+n)
-    //         .html(this.gethtml(l,n))
-    //     if (listitem.graph.type=='icon' || listitem.graph.type=='iconfn'){
-    //         this.addicons(l,n);
-    //     }
-    //     if (listitem.graph.type=='bar'){
-    //         this.addbar(l,n);
-    //     }
-    //     this.addinfo(l,n);
-    //     if (d3.select('#'+l+'_'+n).node().clientHeight>0){d3.select('#'+l+'_'+n).classed('large',true)}
-    //     // ldiv.select('#'+l+'_'+n).on("mouseover",function(){
-    //     //     _t10.showTooltip(d3.event,this.id.split('_')[0],this.id.split('_')[1]);
-    //     // });
-    //     // ldiv.on("mouseout",function(){
-    //     //     _t10.hideTooltip();
-    //     // });
-    // }
 }
 
 TopTen.prototype.gettitle = function(){
