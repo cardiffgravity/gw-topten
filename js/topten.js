@@ -1,3 +1,9 @@
+var obsruns={
+    'O1':{'start':new Date('2015-09-12T00:00:00'),'end':new Date('2016-01-19T16:00:00')},
+    'O2':{'start':new Date('2016-11-30T16:00:00'),'end':new Date('2017-08-25T22:00:00')},
+    'O3a':{'start':new Date('2019-04-01T00:00:00'),'end':new Date('2019-10-01T17:00:00')},
+    'O3b':{'start':new Date('2019-11-01T15:00:00'),'end':new Date('2020-03-27T17:00:00')}
+}
 function makeTopTen(){
     // make top ten database
     this.t10=new TopTen();
@@ -15,7 +21,6 @@ function makeTopTen(){
     }
     return this;
 }
-
 var em2px=16;
 var px2em=1/em2px;
 
@@ -25,9 +30,10 @@ function TopTen(){
 }
 TopTen.prototype.init = function(holderid='top10holder',listInit='distance'){
     var _t10=this;
-    this.N=10;
     this.hid=holderid;
     this.lid='list-holder';
+    this.N=10;
+    this.iconwid=1*em2px;
     // add columns to data
     addColumn('Delay',calcDelay,{sigfig:2,err:0,name_en:'Time waiting',unit_en:'Days'})
     addColumn('Mratio',calcMratio,{sigfig:2,err:0,name_en:'Mass ratio'})
@@ -52,25 +58,31 @@ TopTen.prototype.init = function(holderid='top10holder',listInit='distance'){
         'FAR':{sortcol:'FAR',order:'asc',format:'',sigfig:2,
             graph:{type:'iconfn',icon:imgFARfn,icon_fn:iconFARfn}},
         'Erad':{sortcol:'Erad',order:'dec',format:'',show_err:true,
-            graph:{type:'icon',icon:'img/sun.svg',icon_unit:1}},
+            graph:{type:'icon',icon:'img/sun.svg',icon_unit:1,icon_size:2}},
         'Lpeak':{sortcol:'lpeak',order:'dec',format:'',show_err:true,
-            graph:{type:'icon',icon:'img/bulb.svg',icon_unit:1}},
+            graph:{type:'icon',icon:'img/bulb.svg',icon_unit:0.1}},
         'SNR':{sortcol:'rho',order:'dec',format:'',default:false,
-            graph:{type:'bar',bar:'#ffffff',bar_img:'img/snrwave.svg',bar_min:'auto',bar_max:30,bar_height:'3em'}},
+            graph:{type:'bar',bar:'#ffffff',bar_img:'img/snrwave.svg',bar_min:0,bar_max:30,bar_height:'3em',scale:'SNR'}},
     };
     this.scales={
-        distance:[{xfn:function(){return _t10.getBarMin()},l:'0'},
-        {x:17,l:'Virgo Cluster'},
-        {x:68,l:'Norma Cluster'},
-        {x:100,l:'Coma Cluster'},
-        {x:200,l:'Shapley Supercluster'},
-        {x:600,l:'Caelum Supercluster'},
-        // {x:750,l:'3C373'},
-        {x:1100,l:'Bullet Cluster'},
-        {x:3200,l:'Abell 732'},
-        {xfn:function(){return _t10.getBarMax()},lfn:function(){return _t10.getBarMax()+' Mpc'}}]
+        distance:[{xfn:function(){return _t10.getBarMin()},lfn:function(){return (_t10.getBarMin()==0)?0:_t10.getBarMin()+' Mpc'}},
+            {x:17,l:'Virgo Cluster'},
+            {x:68,l:'Norma Cluster'},
+            {x:100,l:'Coma Cluster'},
+            {x:200,l:'Shapley Supercluster'},
+            {x:600,l:'Caelum Supercluster'},
+            // {x:750,l:'3C373'},
+            {x:1100,l:'Bullet Cluster'},
+            {x:3200,l:'Abell 732'},
+            {xfn:function(){return _t10.getBarMax()},lfn:function(){return _t10.getBarMax()+' Mpc'}}
+        ],
+        SNR:[{xfn:function(){return _t10.getBarMin();},lfn:function(){return _t10.getBarMin();}},
+            {x:0,l:0},{x:10,l:10},{x:20,l:20},{x:30,l:30},{x:40,l:40},
+            {xfn:function(){return _t10.getBarMax();},lfn:function(){return _t10.getBarMax();}}
+        ]
     }
     this.buildSelector();
+    this.buildKey();
     this.makeDiv();
     this.setList(listInit);
 }
@@ -107,7 +119,29 @@ TopTen.prototype.buildSelector = function(holderid='selectorholder'){
         })
     }
 }
-
+TopTen.prototype.buildKey = function(){
+    var _l, iconlabel,reSup,keyhtml;
+    for (l in this.lists){
+        _l=this.lists[l];
+        if (_l.graph.type=='icon'){
+            if(_l.graph.iconlabel){
+                iconlabel=_l.graph.iconlabel;
+            }else{
+                iconlabel=_l.graph.icon_unit+' x '+
+                gwcat.paramUnit((_l.valcol)?_l.valcol:_l.sortcol);
+            };
+            iconlabel.replace('M_sun',)
+            iconlabel=iconlabel.replace('M_sun','M<sub>☉</sub>')
+            reSup=/\^(-?[0-9]*)(?=[\s/]|$)/g
+            iconlabel=iconlabel.replace(reSup,"<sup>$1</sup> ");
+            keyhtml='<div class="key-icon"><img src="'+_l.graph.icon+'">'+
+                '<div class="evname key-icon">'+iconlabel+'</div></div>'
+            d3.select('#keyholder > .keyouter').append('div')
+                .attr('class','key-item key-icon '+l)
+                .html(keyhtml)
+        }
+    }
+}
 TopTen.prototype.setList = function(listIn){
     if (this.lists[listIn]){
         this.listName=listIn;
@@ -364,6 +398,8 @@ TopTen.prototype.addinfo = function(d,_l){
 TopTen.prototype.addicons = function(d,_l){
     // add icons to an event entry
     icon_unit=(_l.graph.icon_unit)?_l.graph.icon_unit:1;
+    icon_size=(_l.graph.icon_size)?_l.graph.icon_size:1;
+    console.log('icon unit',icon_unit,_l,_l.graph.icon_unit);
     icon_label=(_l.graph.icon_label)?_l.graph.icon_label:'UNKNOWN';
     if (_l.graph.icon_fn){
         nimg=_l.graph.icon_fn(d.tt.value)/icon_unit;
@@ -377,6 +413,8 @@ TopTen.prototype.addicons = function(d,_l){
         icon=_l.graph.icon;
     }
     // console.log(this);
+    fullimgwid=(icon_size*this.iconwid)+'px';
+    partimgwid=(icon_size*this.iconwid*(nimg%1))+'px';
     evdiv=d3.select('#item-'+d.tt.n+' .evgraph');
     for (i=1;i<=nimg;i++){
         evdiv.append('div')
@@ -384,16 +422,17 @@ TopTen.prototype.addicons = function(d,_l){
             .attr('id','icon-'+d.tt.n+'-'+i)
         .append('img')
             .attr('src',icon)
+            .style('width',fullimgwid)
     }
     if ((nimg%1)!=0){
         evdiv.append('div')
-            .attr('class','icon part '+'icon-'+n)
+            .attr('class','icon part '+'icon-'+d.tt.n)
             .attr('id','icon-part-'+d.tt.n)
         .append('img')
             .attr('src',icon)
-            .attr('id','icon-part-img-'+n)
-        partimg=d3.select('.icon.part.'+'icon-'+n);
-        partimgwid=(document.getElementById('icon-part-img-'+n).naturalWidth*(nimg%1))+'px';
+            .attr('id','icon-part-img-'+d.tt.n)
+            .style('width',fullimgwid)
+        partimg=d3.select('.icon.part.'+'icon-'+d.tt.n);
         partimg.style('width',partimgwid);
     }
     return
