@@ -187,8 +187,15 @@ TopTen.prototype.buildSelector = function(holderid='selectorholder'){
             .attr('class','select')
             .attr('id','select-'+l)
             .html(title)
-        d3.select('#select-'+l).on("click",function(){
-            sellist=this.id.replace('select-','');
+        // d3.select('#selector-'+l).on("click",function(){
+        //     sellist=this.id.replace('selector-','');
+        //     _t10.setList(sellist);
+        // })
+        d3.select('#'+sid).append('div')
+            .attr('class','selectlink')
+            .attr('id','selectlink-'+l)
+        d3.select('#selectlink-'+l).on("click",function(){
+            sellist=this.id.replace('selectlink-','');
             _t10.setList(sellist);
         })
     }

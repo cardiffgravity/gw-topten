@@ -30,8 +30,8 @@ p.intro{
 .selector, .key-item, .setting-item, .build-item{
     display:inline-block;
     width:18em;
-    min-height:1.5em;
-    padding-top:0.6em;
+    height:2em;
+    /* padding-top:0.6em; */
     padding-left:1em;
     margin-right:0.5em;
     margin-left:0.5em;
@@ -41,6 +41,10 @@ p.intro{
     border-radius:0.5em;
     position:relative;
     background-color:#e9e2ef;
+}
+.key-item, .setting-item{
+    padding-top:0.6em;
+    height:1.5em;
 }
 .key-item.key-icon{
     max-height:0;
@@ -74,11 +78,11 @@ p.intro{
 }
 .selectorder{
     width:1.5em;
-    left:1em;
+    left:0.25em;
     text-align:center;
     font-weight:bold;
     font-size:1em;
-    bottom:0.75em;
+    bottom:0.5em;
     cursor:pointer;
     position:absolute;
 }
@@ -88,6 +92,16 @@ p.intro{
     left:3em;
     position:absolute;
     bottom:0.5em;
+}
+.selectlink{
+    width:17em;
+    left:2em;
+    height:100%;
+    position:absolute;
+    border-left:solid #7d71b4 2px;
+}
+.selector.selected .selectlink{
+    border-left-color:#e9e2ef;
 }
 /* .top10list{
     display:inline-block;
