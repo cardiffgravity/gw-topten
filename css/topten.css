@@ -132,6 +132,23 @@ p.intro{
     display:inline-block;
     position:relative;
 }
+.evname .datalink{
+    font-size:0.8em;
+    font-family:Courier;
+    text-align:center;
+    display:inline-block;
+    width:1em;
+    height:1em;
+    background-color:white;
+    border-radius:1em;
+    padding:0.25em;
+    margin-right:1em;
+    transform:translate3d(0,-0.25em,0);
+}
+.datalink a{
+    text-decoration:none;
+    color:black;
+}
 .list-item.large .evname{
     top:45%;
 }
@@ -212,6 +229,9 @@ p.intro{
 }
 .evname.vctr{
     top:50%;
+}
+.list-item .evname{
+    white-space:nowrap;
 }
 .evname.key, .evname.key-icon, .evname.setting{
     width:auto;
@@ -466,7 +486,7 @@ p.intro{
         font-size:0.5em;
     }
     .infotxt{
-        max-width:5em;
+        max-width:10em;
         font-size:0.8em;
     }
     p.intro{

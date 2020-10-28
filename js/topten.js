@@ -30,7 +30,7 @@ TopTen.prototype.init = function(holderid='top10holder'){
     var _t10=this;
     this.hid=holderid;
     this.lid='list-holder';
-    this.defaults={listName:'mfinal',N:10,incCand:true};
+    this.defaults={listName:'mfinal',N:10,incCand:true,debug:false};
     this.listName = (this.urlVars.hasOwnProperty('listName'))?this.urlVars.listName:this.defaults.listName;
     this.N = (this.urlVars.hasOwnProperty('N'))?this.urlVars.N:this.defaults.N;
     this.incCand = (this.urlVars.hasOwnProperty('incCand'))?this.urlVars.incCand:this.defaults.incCand;
@@ -39,14 +39,16 @@ TopTen.prototype.init = function(holderid='top10holder'){
     // this.iconwid=1*em2px;
     this.iconwid=1;
     // add columns to data
-    addColumn('Delay',calcDelay,{sigfig:2,err:0,name_en:'Time waiting',unit_en:'Days'})
-    addColumn('Mratio',calcMratio,{sigfig:2,err:0,name_en:'Mass ratio'})
-    addColumn('Mtotal',calcMtotal,{'unit_en':'M_sun',sigfig:3,err:0,name_en:'Total mass'})
+    // addColumn('Delay',calcDelay,{sigfig:2,err:0,name_en:'Time waiting',unit_en:'Days'})
+    // addColumn('Mratio',calcMratio,{sigfig:2,err:0,name_en:'Mass ratio'})
+    // addColumn('Mtotal',calcMtotal,{'unit_en':'M_sun',sigfig:3,err:0,name_en:'Total mass'})
     // define lists
     this.lists={
         // 'totmass':{sortcol:'Mtotal',order:'dec',format:'',title:'Total Mass',icon:'img/mass.svg',icon_unit:10,show_err:true},
         'mfinal':{sortcol:'Mfinal',order:'dec',format:'',show_err:true,default:true,
             graph:{type:'icon',icon:'img/mass.svg',icon_unit:1,iconlabel:'1 M_sun'}},
+        // 'mtotal':{sortcol:'Mtotal',order:'dec',format:'',show_err:true,default:true,
+            // graph:{type:'icon',icon:'img/mass.svg',icon_unit:1,iconlabel:'1 M_sun'}},
         // 'loc':{sortcol:'deltaOmega',order:'asc',format:'',namelink:false,hoverlink:true,
         //     graph:{type:'bar',bar:'#000000',bar_min:1,bar_max:40000,bar_log:true}},
         'loc':{sortcol:'deltaOmega',order:'asc',format:'',namelink:false,hoverlink:true,
@@ -108,28 +110,58 @@ TopTen.prototype.init = function(holderid='top10holder'){
         ]
     }
     if (!this.lists[this.listName]){
-        console.log('Unknown list:',this.listName,'Using mfinal');
+        if (this.debug){console.log('Unknown list:',this.listName,'Using mfinal');}
         this.listName='mfinal'
     }
     this.buildSelector();
     this.buildKey();
     this.makeDiv();
+    this.colsCheck();
     this.setList(this.listName);
     
     var nList=document.getElementById('nSelect');
     nList.onchange = function(){
-        console.log(this,this.value)
+        // console.log(this,this.value)
         _t10.N=this.value;
         _t10.setList(_t10.listName);
     }
     var candList=document.getElementById('candSelect');
     candList.onchange = function(){
-        console.log('select candidate',this,this.value)
+        if (this.debug){console.log('select candidate',this,this.value)}
         _t10.incCand=(this.value=='yes')?true:false;
-        console.log(_t10.incCand);
+        // console.log(_t10.incCand);
         _t10.setList(_t10.listName);
     }
+    window.addEventListener("resize",function(){
+        _t10.setList(_t10.listName)
+    });
 }
+TopTen.prototype.colsCheck = function(){
+    var colscheck={
+        'Mfinal':{'limit':'upper','alt':'Mtotal'},
+        'Erad':{'limit':'lower'},
+        'lpeak':{'limit':'lower'}
+    };
+    for (col in colscheck){
+        for (n in gwcat.data){
+            d=gwcat.data[n];
+            if (d[col]){
+                if (!d[col].hasOwnProperty('err')&&d[col].hasOwnProperty('best')){
+                    if (this.debug){console.log('replacing',col,'for',d.name,':',d[col])}
+                    d[col][colscheck[col].limit]=d[col].best;
+                    delete d[col].best;
+                    if (this.debug){console.log('replaced with:',d[col])}
+                }
+            }else if (d[colscheck[col].alt]){
+                if (this.debug){console.log('creating',col,'for',d.name)}
+                d[col]={approx:true};
+                d[col][colscheck[col]['limit']]=d[colscheck[col].alt].best;
+                if (this.debug){console.log('replaced with:',d[col])}
+            }
+        }
+    }
+}
+
 TopTen.prototype.getUrlVars = function(){
     // Get URL and query variables
     var vars = {},hash;
@@ -157,7 +189,7 @@ TopTen.prototype.makeUrl = function(){
         }
     }
     newUrl=newUrl.slice(0,newUrl.length-1);
-    console.log(newUrl);
+    // console.log(newUrl);
     return(newUrl);
 }
 TopTen.prototype.buildSelector = function(holderid='selectorholder'){
@@ -228,7 +260,7 @@ TopTen.prototype.setList = function(listIn){
         this.listName=listIn;
         this.list=this.lists[listIn];
     }
-    console.log('selected',listIn)
+    if (this.debug){console.log('selected',listIn);}
     d3.selectAll('.selector')
         .classed('selected',false);
     d3.select('#selector-'+listIn)
@@ -277,6 +309,7 @@ TopTen.prototype.popList = function(){
             dx.tt.n=num;
             dx.tt.valType=gwcat.getParamType(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
             dx.tt.value=gwcat.getNominal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
+            dx.tt.approx=(gwcat.data[n][(_l.valcol)?_l.valcol:_l.sortcol].approx)?gwcat.data[n][(_l.valcol)?_l.valcol:_l.sortcol].approx:false;
             if (_l.show_err){
                 dx.tt.errneg=gwcat.getMinVal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
                 dx.tt.errpos=gwcat.getMaxVal(gwcat.dataOrder[n],(_l.valcol)?_l.valcol:_l.sortcol);
@@ -313,7 +346,7 @@ TopTen.prototype.makeList = function(){
     // add entries for list
     var _t10=this;
     var _l=this.list;
-    console.log(this.listName,':',_l);
+    if (this.debug){console.log(this.listName,':',_l);}
     var ldiv=this.ld;
     // console.log(this)
     
@@ -345,7 +378,7 @@ TopTen.prototype.makeList = function(){
         }
     })
     ldiv.each(function(d){
-        console.log(this);
+        // console.log(this);
         if (this.clientHeight > 2.5*em2px){
             d3.select('#'+this.id+' > .evname').node().classList.add('vctr')
         }
@@ -400,7 +433,12 @@ TopTen.prototype.gethtml = function(d,_l){
             namelink='';
         }
     }
-    htmlname=(namelink) ? '<div class="evname">'+namelink+d.name+'</a></div>' : '<div class="evname">'+d.name+'</div>';
+    var datalink=gwcat.getLink(d.name,'open-data');
+    var htmllink='';
+    if (datalink.length>0){
+        htmllink='<a target="_blank" href="'+datalink[0].url+'"><span class="datalink">i</span></a>';
+    }
+    htmlname=(namelink) ? '<div class="evname">'+namelink+d.name+'</a></div>' : '<div class="evname">'+htmllink+d.name+'</div>';
     htmlicon='<div class="evgraph"></div>';
     htmlval='<div class="evval">'+val+'</div>';
     // htmlhov='<div class="info">'+this.getinfo(l,n)+'</div>';
@@ -432,7 +470,7 @@ TopTen.prototype.addinfo = function(d,_l){
         // var ih="1em";
         // lndiv.select('.infotxt').style('height',ih);
         // lndiv.select('.infotxt').style('top',0);
-        console.log(l,n,iw,ih);
+        // console.log(l,n,iw,ih);
     }else if (_l.infotype=='date'){
         var htmldate=gwcat.getBest(d.name,'UTC').replace('T','<br>')
         d3.select('#item-'+d.tt.n).append('div')
@@ -442,8 +480,8 @@ TopTen.prototype.addinfo = function(d,_l){
     }else{
         sigfig=(_l.hasOwnProperty('sigfig'))?_l.sigfig:gwcat.datadict[_l.sortcol].sigfig;
         var val=setPrecision(d.tt.value,sigfig,_l.format);
-        if (d.tt.value=='lower'){val='> '+val}
-        else if (d.tt.valType=='upper'){val='< '+val}
+        if (d.tt.valType=='lower'){val='> '+((d.tt.approx)?'~':'')+val}
+        else if (d.tt.valType=='upper'){val='< '+((d.tt.approx)?'~':'')+val}
         var htmlval='<div class="infoval">'+val+'</div>';
         if (_l.show_err && d.tt.valType=='best'){
             var fixprec=getprecision(d.tt.errpos,sigfig,_l.format);
@@ -459,7 +497,8 @@ TopTen.prototype.addinfo = function(d,_l){
         reSup=/\^(-?[0-9]*)(?=[\s/]|$)/g
         unit=unit.replace(reSup,"<sup>$1</sup> ");
         if (d.tt.label){unit=unit+' '+d.tt.label}
-        var htmlunit='<div class="infounit">'+unit+'</div>';
+        var unitclass= (unit.search('<sup>')>=0)?"infounit high":"infounit";
+        var htmlunit='<div class="'+unitclass+'">'+unit+'</div>';
         d3.select('#item-'+d.tt.n).append('div')
             .attr('class','info')
             .attr('id','info-'+d.tt.n)
@@ -494,7 +533,7 @@ TopTen.prototype.addicons = function(d,_l){
     // add icons to an event entry
     icon_unit=(_l.graph.icon_unit)?_l.graph.icon_unit:1;
     icon_size=(_l.graph.icon_size)?_l.graph.icon_size:1;
-    console.log('icon unit',icon_unit,_l,_l.graph.icon_unit);
+    // console.log('icon unit',icon_unit,_l,_l.graph.icon_unit);
     icon_label=(_l.graph.icon_label)?_l.graph.icon_label:'UNKNOWN';
     if (_l.graph.icon_fn){
         nimg=_l.graph.icon_fn(d.tt.value)/icon_unit;
@@ -570,7 +609,7 @@ TopTen.prototype.getBarLen = function(val,_l){
     return barlen;
 }
 TopTen.prototype.addbar = function(d,_l){
-    console.log('add bar',d.name,d.tt.value)
+    if (this.debug){console.log('add bar',d.name,d.tt.value);}
     // add bar for an event, with error bars if values are present
     var show_err=(_l.show_err)?_l.show_err:false;
     var bar_log=(_l.graph.bar_log)?_l.graph.bar_log:false;
