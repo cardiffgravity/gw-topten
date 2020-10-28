@@ -32,11 +32,39 @@
 	</style>
 </head>
 <body>
-<h1>LIGO/Virgo Top Ten Events</h1>
-<p>Based on the <b><a href="http://gwcat.cardiffgravity.org">gwcat</a></b> database, compiled from data at the <a href="https://www.gw-openscience.org/">Gravitational Wave Open Science Centre</a> and <a href="https://gracedb.ligo.org/latest/">GraceDB</a>.</p>
+<h1 class='title'>LIGO/Virgo Top Ten Events</h1>
+<p class='intro'>Based on the <b><a href="http://gwcat.cardiffgravity.org">gwcat</a></b> database, compiled from data at the <a href="https://www.gw-openscience.org/">Gravitational Wave Open Science Centre</a> and <a href="https://gracedb.ligo.org/latest/">GraceDB</a>.</p>
 <div id="selectorholder">
     <div class="list-title sel">
         <div class="listname sel">Select Top 10 list</div>
+    </div>
+</div>
+<div id="settingsholder">
+    <div class="settingsouter">
+        <div class="settings-title">
+            <div class="listname settings">Settings</div>
+        </div>
+        <div class="setting-item">
+            <span class="evname setting">Number in list</span>
+            <select id='nSelect' name='nSelect'>
+                <option id='nSelect-10' value=10 selected>10</option>
+                <option id='nSelect-20' value=20>20</option>
+                <option id='nSelect-50' value=50>50</option>
+                <option id='nSelect-100' value=100>100</option>
+            </select>
+            <!-- <div class="evval key">Value</div>
+            <div class="everr pos key">+err</div>
+            <div class="everr neg key">-err</div> -->
+        </div><div class="setting-item">
+            <span class="evname setting">Include Candidates</span>
+            <select id='candSelect' name='candSelect'>
+                <option id='candSelect-yes' value='yes'>Yes</option>
+                <option id='candSelect-no' value='no'>No</option>
+            </select>
+            <!-- <div class="evval key">Value</div>
+            <div class="everr pos key">+err</div>
+            <div class="everr neg key">-err</div> -->
+        </div>
     </div>
 </div>
 <div id="keyholder">
@@ -60,26 +88,20 @@
 </div>
 <div id='top10holder'></div>
 <div class="build">
-    <div class="buildouter">
+    <div class="buildouter" id="buildholder">
         <div class="build-title">
             <div class="listname build">Latest Build</div>
         </div>
         <div class="build-item GW">
             <div class="evname build">
-                <a id='gwosc-build-url' href="">Gwosc Catalogue</a>:
-                <span id='gwosc-build-date'></span>
+                <a id='gwtc-build-url' href="">GWTC Catalogue</a>:
+                <span id='gwtc-build-date'></span>
             </div>
         </div>
         <div class="build-item Cand">
             <div class="evname build">
                 <a id='gracedb-build-url'href="">GraceDB</a>:
                 <span id='gracedb-build-date'></span>
-            </div>
-        </div>
-        <div class="build-item GW">
-            <div class="evname build">
-                <a id='manual-build-url'href="">Manual Import</a>:
-                <span id='manual-build-date'></span>
             </div>
         </div>
     </div>

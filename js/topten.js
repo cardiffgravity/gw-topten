@@ -7,17 +7,13 @@ var obsruns={
 function makeTopTen(){
     // make top ten database
     this.t10=new TopTen();
-    if ((gwcat.meta)&&(gwcat.meta.gwosc)){
-        document.getElementById('gwosc-build-date').innerHTML = gwcat.meta.gwosc.retrieved
-        document.getElementById('gwosc-build-url').setAttribute('href',gwcat.meta.gwosc.src)
+    if ((gwcat.meta)&&(gwcat.meta.GWTC)){
+        document.getElementById('gwtc-build-date').innerHTML = gwcat.meta.GWTC.retrieved
+        document.getElementById('gwtc-build-url').setAttribute('href',gwcat.meta.GWTC.src)
     }
     if ((gwcat.meta)&&(gwcat.meta.graceDB)){
         document.getElementById('gracedb-build-date').innerHTML = gwcat.meta.graceDB.retrieved
         document.getElementById('gracedb-build-url').setAttribute('href',gwcat.meta.graceDB.src)
-    }
-    if ((gwcat.meta)&&(gwcat.meta.manual)){
-        document.getElementById('manual-build-date').innerHTML = gwcat.meta.manual.retrieved
-        document.getElementById('manual-build-url').setAttribute('href',gwcat.meta.manual.src)
     }
     return this;
 }
@@ -25,15 +21,23 @@ var em2px=16;
 var px2em=1/em2px;
 
 function TopTen(){
+    this.getUrlVars();
     this.init();
+    // this.init();
     return this;
 }
-TopTen.prototype.init = function(holderid='top10holder',listInit='distance'){
+TopTen.prototype.init = function(holderid='top10holder'){
     var _t10=this;
     this.hid=holderid;
     this.lid='list-holder';
-    this.N=10;
-    this.iconwid=1*em2px;
+    this.defaults={listName:'mfinal',N:10,incCand:true};
+    this.listName = (this.urlVars.hasOwnProperty('listName'))?this.urlVars.listName:this.defaults.listName;
+    this.N = (this.urlVars.hasOwnProperty('N'))?this.urlVars.N:this.defaults.N;
+    this.incCand = (this.urlVars.hasOwnProperty('incCand'))?this.urlVars.incCand:this.defaults.incCand;
+    // this.N=10;
+    // this.incCand=true;
+    // this.iconwid=1*em2px;
+    this.iconwid=1;
     // add columns to data
     addColumn('Delay',calcDelay,{sigfig:2,err:0,name_en:'Time waiting',unit_en:'Days'})
     addColumn('Mratio',calcMratio,{sigfig:2,err:0,name_en:'Mass ratio'})
@@ -41,20 +45,21 @@ TopTen.prototype.init = function(holderid='top10holder',listInit='distance'){
     // define lists
     this.lists={
         // 'totmass':{sortcol:'Mtotal',order:'dec',format:'',title:'Total Mass',icon:'img/mass.svg',icon_unit:10,show_err:true},
-        // 'mratio':{sortcol:'Mratio',order:'asc',format:'',title:'Mass Ratio',bar:'#000000',bar_min:0,bar_max:1,show_err:true},
         'mfinal':{sortcol:'Mfinal',order:'dec',format:'',show_err:true,default:true,
             graph:{type:'icon',icon:'img/mass.svg',icon_unit:1,iconlabel:'1 M_sun'}},
         // 'loc':{sortcol:'deltaOmega',order:'asc',format:'',namelink:false,hoverlink:true,
         //     graph:{type:'bar',bar:'#000000',bar_min:1,bar_max:40000,bar_log:true}},
         'loc':{sortcol:'deltaOmega',order:'asc',format:'',namelink:false,hoverlink:true,
-            graph:{type:'bar',bar:'#000000',bar_min:1,bar_max:40000,bar_log:true},
+            graph:{type:'bar',bar:'#000000',bar_min:1,bar_max:40000,bar_log:true,scale:'loc'},
             infotype:"skyloc"},
-        'delay':{sortcol:'Delay',valcol:'Delay',order:'asc',format:'',title:'Days waiting',
-            graph:{type:'none'}},
+        // 'delay':{sortcol:'Delay',valcol:'Delay',order:'asc',format:'',title:'Days waiting',
+        //     graph:{type:'none'}},
+        'mratio':{sortcol:'Mratio',order:'asc',format:'',title:'Mass Ratio',
+            graph:{type:'bar',bar:'#000000',bar_min:0,bar_max:1,show_err:true,scale:'ratio'}},
         'distance':{sortcol:'DL',order:'asc',format:'',title:'Distance',show_err:true,
             graph:{type:'bar',bar:'#000000',bar_max:'auto',scale:'distance'}},
-        'date':{sortcol:'GPS',valcol:'UTC',order:'asc',format:'date',title:'Detection Date',unit:'UTC',
-            graph:{type:'none'}},
+        'date':{sortcol:'GPS',valcol:'GPS',order:'asc',format:'date',title:'Detection Date',unit:'UTC',
+            graph:{type:'bar',bar:'#000000',bar_min:1120000000,bar_max:1270000000,scale:'date',marker:true},infotype:'date'},
         'FAR':{sortcol:'FAR',order:'asc',format:'',sigfig:2,
             graph:{type:'iconfn',icon:imgFARfn,icon_fn:iconFARfn}},
         'Erad':{sortcol:'Erad',order:'dec',format:'',show_err:true,
@@ -76,15 +81,84 @@ TopTen.prototype.init = function(holderid='top10holder',listInit='distance'){
             {x:3200,l:'Abell 732'},
             {xfn:function(){return _t10.getBarMax()},lfn:function(){return _t10.getBarMax()+' Mpc'}}
         ],
+        loc:[{x:1,l:'1 deg<sup>2</sup>'},{x:2,l:''},{x:3,l:''},{x:4,l:''},{x:5,l:''},
+            {x:6,l:''},{x:7,l:''},{x:8,l:''},{x:9,l:''},{x:10,l:'10 deg<sup>2</sup>'},
+            {x:20,l:''},{x:30,l:''},{x:40,l:''},{x:50,l:''},
+            {x:60,l:''},{x:70,l:''},{x:80,l:''},{x:90,l:''},{x:100,l:'100 deg<sup>2</sup>'},
+            {x:200,l:''},{x:300,l:''},{x:400,l:''},{x:500,l:''},
+            {x:600,l:''},{x:700,l:''},{x:800,l:''},{x:900,l:''},{x:1000,l:'1000 deg<sup>2</sup>'},
+            {x:2000,l:''},{x:3000,l:''},{x:4000,l:''},{x:5000,l:''},
+            {x:6000,l:''},{x:7000,l:''},{x:8000,l:''},{x:9000,l:''},{x:10000,l:'1000 deg<sup>2</sup>'},
+            {x:20000,l:''},{x:30000,l:''},{x:40000,l:'40000 deg<sup>2</sup>'}
+        ],
+        ratio:[{x:0,l:0},
+            {x:0.1,l:''},{x:0.2,l:''},{x:0.3,l:''},{x:0.4,l:''},{x:0.5,l:0.5},
+            {x:0.6,l:''},{x:0.7,l:''},{x:0.8,l:''},{x:0.9,l:''},{x:1,l:1}
+        ],
         SNR:[{xfn:function(){return _t10.getBarMin();},lfn:function(){return _t10.getBarMin();}},
             {x:0,l:0},{x:10,l:10},{x:20,l:20},{x:30,l:30},{x:40,l:40},
             {xfn:function(){return _t10.getBarMax();},lfn:function(){return _t10.getBarMax();}}
+        ],
+        date:[{x:1126051217,l:''},{x:1137254417,l:''},
+            {x:1131652817,l:'O1',noline:true},
+            {x:1164556817,l:''},{x:1187733618,l:''},
+            {x:1176145217,l:'O2',noline:true},
+            {x:1238112018,l:''},{x:1269363618,l:''},
+            {x:1253737818,l:'O3',noline:true}
         ]
+    }
+    if (!this.lists[this.listName]){
+        console.log('Unknown list:',this.listName,'Using mfinal');
+        this.listName='mfinal'
     }
     this.buildSelector();
     this.buildKey();
     this.makeDiv();
-    this.setList(listInit);
+    this.setList(this.listName);
+    
+    var nList=document.getElementById('nSelect');
+    nList.onchange = function(){
+        console.log(this,this.value)
+        _t10.N=this.value;
+        _t10.setList(_t10.listName);
+    }
+    var candList=document.getElementById('candSelect');
+    candList.onchange = function(){
+        console.log('select candidate',this,this.value)
+        _t10.incCand=(this.value=='yes')?true:false;
+        console.log(_t10.incCand);
+        _t10.setList(_t10.listName);
+    }
+}
+TopTen.prototype.getUrlVars = function(){
+    // Get URL and query variables
+    var vars = {},hash;
+    var url = window.location.href;
+    if (window.location.href.indexOf('?')!=-1){
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        url = window.location.href.slice(0,window.location.href.indexOf('?'));
+        for(var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars[hash[0]] = hash[1];
+        }
+    }
+    // console.log("input:",vars);
+    this.urlVars = vars;
+    this.url = url;
+    this.debug = (this.urlVars.debug) ? true : false;
+    if(this.debug){console.log('debug',this.debug)}
+}
+TopTen.prototype.makeUrl = function(){
+    var newUrl=this.url+'?';
+    for (k in this.defaults){
+        if (this[k]!=this.defaults[k]){
+            newUrl+=k+'='+this[k]+'&';
+        }
+    }
+    newUrl=newUrl.slice(0,newUrl.length-1);
+    console.log(newUrl);
+    return(newUrl);
 }
 TopTen.prototype.buildSelector = function(holderid='selectorholder'){
     var _t10=this;
@@ -158,6 +232,7 @@ TopTen.prototype.setList = function(listIn){
         .classed('selected',true);
     this.popList();
     this.makeList();
+    window.history.replaceState({},'',this.makeUrl());
 }
 TopTen.prototype.makeDiv = function(holderid='top10holder'){
     // make divs for single lists
@@ -185,7 +260,8 @@ TopTen.prototype.popList = function(){
     _l.data=[]
     var num=0;
     for (n in gwcat.dataOrder){
-        if (num>=10){continue}
+        if (num>=this.N){continue}
+        if ((this.incCand==false)&(gwcat.getBest(gwcat.dataOrder[n],'conf')=='Candidate')){continue}
         ev=gwcat.dataOrder[n];
         if (gwcat.getNominal(gwcat.dataOrder[n],_l.sortcol)){
             idx=gwcat.event2idx(ev)
@@ -259,6 +335,12 @@ TopTen.prototype.makeList = function(){
         }
         if (_l.graph.type=='icon' || _l.graph.type=='iconfn'){
             _t10.addicons(d,_l);
+        }
+    })
+    ldiv.each(function(d){
+        console.log(this);
+        if (this.clientHeight > 2.5*em2px){
+            d3.select('#'+this.id+' > .evname').node().classList.add('vctr')
         }
     })
     if (_l.graph.scale){
@@ -342,8 +424,14 @@ TopTen.prototype.addinfo = function(d,_l){
         // var ih=lndiv.select('.infotxt').node().clientHeight;
         // var ih="1em";
         // lndiv.select('.infotxt').style('height',ih);
-        lndiv.select('.infotxt').style('top',0);
+        // lndiv.select('.infotxt').style('top',0);
         console.log(l,n,iw,ih);
+    }else if (_l.infotype=='date'){
+        var htmldate=gwcat.getBest(d.name,'UTC').replace('T','<br>')
+        d3.select('#item-'+d.tt.n).append('div')
+            .attr('class','info')
+            .attr('id','info-'+d.tt.n)
+            .html('<div class="infotxt">'+htmldate+'</div>')
     }else{
         sigfig=(_l.hasOwnProperty('sigfig'))?_l.sigfig:gwcat.datadict[_l.sortcol].sigfig;
         var val=setPrecision(d.tt.value,sigfig,_l.format);
@@ -391,7 +479,7 @@ TopTen.prototype.addinfo = function(d,_l){
     if (ih){lndiv.select('.infotxt').style('height',ih);}
     itop=(it)?it:0;
     
-    lndiv.select('.infotxt').style('top',(it)?it:0);
+    // lndiv.select('.infotxt').style('top',(it)?it:0);
         // return('<div class="infotxt">'+htmlval+htmlerr+htmlunit+'</div>');
     return;
 }
@@ -413,8 +501,8 @@ TopTen.prototype.addicons = function(d,_l){
         icon=_l.graph.icon;
     }
     // console.log(this);
-    fullimgwid=(icon_size*this.iconwid)+'px';
-    partimgwid=(icon_size*this.iconwid*(nimg%1))+'px';
+    fullimgwid=(icon_size*this.iconwid)+'em';
+    partimgwid=(icon_size*this.iconwid*(nimg%1))+'em';
     evdiv=d3.select('#item-'+d.tt.n+' .evgraph');
     for (i=1;i<=nimg;i++){
         evdiv.append('div')
@@ -482,6 +570,7 @@ TopTen.prototype.addbar = function(d,_l){
     var bar_img=(_l.graph.bar_img)?_l.graph.bar_img:false;
     var bar_height=(_l.graph.bar_height)?_l.graph.bar_height:'auto';
     var bar_col=(_l.graph.bar)?_l.graph.bar_col:false;
+    var bar_marker=(_l.graph.marker)?_l.graph.marker:false;
     _l.graph.bar_minv=this.getBarMin();
     _l.graph.bar_maxv=this.getBarMax();
     // if (bar_max=='auto'){
@@ -517,10 +606,18 @@ TopTen.prototype.addbar = function(d,_l){
             .attr('class','bar-bg')
             .attr('id','bar-bg-'+d.tt.n)
         var barbg=evdiv.select('#bar-bg-'+d.tt.n)
-        barbg.append('div')
-            .attr('class','bar')
-            .attr('id','bar-'+d.tt.n)
-            .style('width',(barlen)+'%');
+        if (bar_marker){
+            barbg.append('div')
+                .attr('class','bar')
+                .attr('id','bar-'+d.tt.n)
+                .style('left',(barlen)+'%')
+                .style('width','3px');
+        }else{
+            barbg.append('div')
+                .attr('class','bar')
+                .attr('id','bar-'+d.tt.n)
+                .style('width',(barlen)+'%');
+        }
     }
     // var barbg=evdiv.select('#bar-bg-'+l+'-'+n)
     if (show_err){
@@ -562,12 +659,10 @@ TopTen.prototype.addScale = function(_l){
         return;
     }else{
         var lsc=d3.select('#list-scale > .evgraph > .scale-bg');
+        
         // get top10 list height
-        var t10h=0;
-        d3.selectAll('.list-item').each(function(){
-            t10h+=this.clientHeight;
-            // console.log(this.style('height'))
-        })
+        var t10h=d3.select('#list-holder').node().clientHeight;
+        
         lsc.selectAll('*').remove()
         for (s in this.scales[_l.graph.scale]){
             var sc=this.scales[_l.graph.scale][s];
@@ -582,13 +677,14 @@ TopTen.prototype.addScale = function(_l){
                 if ((scx>0)&(scx<2)){
                     continue;
                 }
-                
-                lsc.append('div')
-                    .attr('class','scale-item')
-                    .attr('id','scale-item-'+s)
-                    .style('left',(scx)+'%')
-                    .style('top',(-t10h-34)+'px')
-                    .style('height',(t10h+34+10)+'px');
+                if (!sc.noline){
+                    lsc.append('div')
+                        .attr('class','scale-item')
+                        .attr('id','scale-item-'+s)
+                        .style('left',(scx)+'%')
+                        .style('top',(-t10h-10)+'px')
+                        .style('height',(t10h+20)+'px');
+                }
                 lsc.append('div')
                     .attr('class','scale-label')
                     .attr('id','scale-label-'+s)

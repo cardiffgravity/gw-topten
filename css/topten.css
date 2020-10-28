@@ -1,30 +1,33 @@
 body{
     font: 16px sans-serif;
 }
-.keyouter, .buildouter{
+h1.title{
+    text-align:center;
+}
+p.intro{
+    text-align:center;
+    width:60em;
+    margin-left:auto;
+    margin-right:auto;
+}
+.keyouter, .buildouter, .settingsouter{
     display:inline-block;
     padding-bottom:3px;
     overflow-x: hidden;
-    width:40em;
-    margin-left:0.5em;
-    margin-right:0.5em;
-    margin-bottom:1em;
-    border: 3px solid #662d8f;
-    border-radius:0.5em;
+    width:100%;
 }
-#selectorholder{
-    display:inline-block;
-    max-width:40em;
-    margin-left:0.5em;
-    margin-right:0.5em;
+#selectorholder, #keyholder, #settingsholder, #buildholder{
+    display:block;
+    width:60em;
+    margin-left:auto;
+    margin-right:auto;
     margin-bottom:1em;
     padding-bottom:3px;
     overflow-x: hidden;
     border: 3px solid #662d8f;
     border-radius:0.5em;
-    
 }
-.selector, .key-item{
+.selector, .key-item, .setting-item, .build-item{
     display:inline-block;
     width:18em;
     min-height:1.5em;
@@ -56,6 +59,11 @@ body{
     margin-right:0.5em;
     margin-left:0.5em
 }
+/* select{
+    background-color:#662d8f;
+    color:white;
+    font-size:1em;
+} */
 .selector{
     cursor:pointer;
 }
@@ -92,15 +100,15 @@ body{
     transition-timing-function: ease-in-out;
 } */
 #top10holder{
-    max-height:100em;
-    display:inline-block;
+    /* max-height:100em; */
+    display:block;
     visibility:visible;
-    width:40em;
-    margin-left:0.5em;
-    margin-right:0.5em;
+    width:60em;
+    margin-left:auto;
+    margin-right:auto;
     padding-bottom:.5em;
     border: 3px solid #662d8f;
-    background-color: 662d8f;
+    background-color: #662d8f;
     border-radius:0.5em;
     transition: max-height 1s;
     transition-timing-function: ease-in-out;
@@ -113,12 +121,12 @@ body{
 .list-item.large .evname{
     top:45%;
 }
-.list-title, .key-title, .build-title{
+.list-title, .key-title, .settings-title, .build-title{
     display:block;
     min-height:2.5em;
     background-color: #662d8f;
     padding-top:0.5em;
-    padding-left:2%;
+    padding-left:0.5em;
     font-weight:bold;
     color:white;
     position:relative;
@@ -140,10 +148,10 @@ body{
     width:20em;
     text-align:left;
     position:absolute;
-    left:3em;
+    left:4em;
     bottom:0.75em;
 }
-.listname.sel{
+.listname.sel, .listname.build, .listname.settings{
     left:1em;
 }
 .listunit{
@@ -154,7 +162,7 @@ body{
     bottom:0.75em;
     display:none;
 }
-.list-item, .build-item{
+.list-item{
     display:block;
     min-height:1.5em;
     padding-top:0.6em;
@@ -162,6 +170,13 @@ body{
     /* overflow-x:hidden; */
     border-bottom: #e9e2ef solid 3px;
     position:relative;
+    width:50em;
+}
+.list-item{
+    margin-left:1em;
+}
+.build-item{
+    width:25em;
 }
 /* .list-item.GW.odd{
     background-color:#fdcc9c;
@@ -176,26 +191,36 @@ body{
     background-color:#e1f4fe;
 }
 .evname{
-    width:6.5em;
-    text-align:left;
-    position:absolute;
-}
-.evname.key, .evname.key-icon{
     width:15em;
+    text-align:right;
+    position:absolute;
+    /* transform:translate3d(0,-25%,0); */
+}
+.evname.vctr{
+    top:50%;
+}
+.evname.key, .evname.key-icon, .evname.setting{
+    width:auto;
+    text-align:left;
+    margin-right:0.5em;
+    position:unset;
 }
 .evname.key-icon{
     padding-left:0.5em;
+    text-align:left;
 }
 .evname.build{
-    width:25em;
+    width:100%;
+    text-align:left;
 }
 .evgraph{
     width:30em;
     text-align:left;
     padding-left:0.5em;
     position:relative;
-    left:6.5em;
+    left:15em;
     z-index:20;
+    /* transform:translate3d(0,-10%,0); */
 }
 .evval{
     width:5.5em;
@@ -302,6 +327,7 @@ body{
     position:relative;
     background-color:#662d8f;
     z-index:10;
+    margin-left:1em;
 }
 .list-scale.hidden{
     display:none;
@@ -348,6 +374,11 @@ body{
 .tttxt, .infotxt{
     position:relative;
 }
+.infotxt{
+    transform:translate3d(0,-50%,0);
+    max-width:10em;
+    z-index:30
+}
 .ttval, .ttunit, .infoval, .infounit{
     text-align:left;
     position:absolute;
@@ -383,6 +414,9 @@ body{
     border-radius: 0.5em;
     background-color:#e9e2ef;
 }
+.infoimg.skyloc{
+    width:95%;
+}
 .list-item:hover .infotxt{
     visibility: visible;
     opacity:1;
@@ -396,4 +430,44 @@ body{
   border-width: 0.5em;
   border-style: solid;
   border-color: transparent 7d71b4 transparent transparent;
+}
+
+@media only screen and (max-width: 60em){
+    #selectorholder, #keyholder, #buildholder, #settingsholder, #top10holder{
+        width:40em;
+    }
+    .list-item{
+        width:28em;
+    }
+    .evname{
+        width:10em;
+        font-size:0.75em;
+        transform:unset;
+    }
+    .evgraph{
+        width:15em;
+        left:8em;
+    }
+    .icon{
+        font-size:0.5em;
+    }
+    .infotxt{
+        max-width:5em;
+        font-size:0.8em;
+    }
+    p.intro{
+        text-align:center;
+        width:40em;
+        margin-left:auto;
+        margin-right:auto;
+    }
+}
+@media only screen and (max-width: 40em){
+    #selectorholder, #keyholder, #buildholder, #settingsholder, #top10holder{
+        width:100%;
+    }
+    p.intro{
+        text-align:center;
+        width:100%;
+    }
 }
