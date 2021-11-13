@@ -30,10 +30,11 @@ TopTen.prototype.init = function(holderid='top10holder'){
     var _t10=this;
     this.hid=holderid;
     this.lid='list-holder';
-    this.defaults={listName:'mfinal',N:10,incCand:true,debug:false};
+    this.defaults={listName:'mfinal',N:10,incCand:false,incMarg:true,debug:false};
     this.listName = (this.urlVars.hasOwnProperty('listName'))?this.urlVars.listName:this.defaults.listName;
     this.N = (this.urlVars.hasOwnProperty('N'))?this.urlVars.N:this.defaults.N;
     this.incCand = (this.urlVars.hasOwnProperty('incCand'))?this.urlVars.incCand:this.defaults.incCand;
+    this.incMarg = (this.urlVars.hasOwnProperty('incMarg'))?this.urlVars.incMarg:this.defaults.incMarg;
     // this.N=10;
     // this.incCand=true;
     // this.iconwid=1*em2px;
@@ -125,11 +126,18 @@ TopTen.prototype.init = function(holderid='top10holder'){
         _t10.N=this.value;
         _t10.setList(_t10.listName);
     }
-    var candList=document.getElementById('candSelect');
-    candList.onchange = function(){
-        if (this.debug){console.log('select candidate',this,this.value)}
-        _t10.incCand=(this.value=='yes')?true:false;
-        // console.log(_t10.incCand);
+    // var candList=document.getElementById('candSelect');
+    // candList.onchange = function(){
+    //     if (this.debug){console.log('select candidate',this,this.value)}
+    //     _t10.incCand=(this.value=='yes')?true:false;
+    //     // console.log(_t10.incCand);
+    //     _t10.setList(_t10.listName);
+    // }
+    var margList=document.getElementById('margSelect');
+    margList.onchange = function(){
+        if (this.debug){console.log('select marginal',this,this.value)}
+        _t10.incMarg=(this.value=='yes')?true:false;
+        // console.log(_t10.incMarg);
         _t10.setList(_t10.listName);
     }
     window.addEventListener("resize",function(){
@@ -300,7 +308,8 @@ TopTen.prototype.popList = function(){
     var num=0;
     for (n in gwcat.dataOrder){
         if (num>=this.N){continue}
-        if ((this.incCand==false)&(gwcat.getBest(gwcat.dataOrder[n],'conf')=='Candidate')){continue}
+        if ((this.incCand==false)&(gwcat.getBest(gwcat.dataOrder[n],'detType')=='Candidate')){continue}
+        if ((this.incMarg==false)&(gwcat.getBest(gwcat.dataOrder[n],'detType')=='Marginal')){continue}
         ev=gwcat.dataOrder[n];
         if (gwcat.getNominal(gwcat.dataOrder[n],_l.sortcol)){
             idx=gwcat.event2idx(ev)
@@ -356,7 +365,9 @@ TopTen.prototype.makeList = function(){
         _t10.reorderList();
     })
     getClass=function(d){
-        evtype=(d.name[0]=='G')?'GW':'Cand';
+        // evtype=(d.name[0]=='G')?'GW':'Cand';
+        evtype=d.detType.best;
+        console.log('evtype',evtype);
         evodd=(d.n%2==0)?'even':'odd';
         return('list-item '+evtype+' '+evodd);
     }

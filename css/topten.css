@@ -221,6 +221,9 @@ p.intro{
 .Cand{
     background-color:#e1f4fe;
 }
+.Marginal{
+    background-color:#e1f4fe;
+}
 .evname{
     width:15em;
     text-align:right;
