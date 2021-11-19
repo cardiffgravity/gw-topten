@@ -459,7 +459,7 @@ TopTen.prototype.gethtml = function(d,_l){
 TopTen.prototype.addinfo = function(d,_l){
     var ih="",iw="",it="",ib="";
     if (_l.infotype=='skyloc'){
-        var hovlink=gwcat.getLink(d.name,'skymap-thumbnail','Cartesian zoomed');
+        var hovlink=gwcat.getLink(d.name,ltype='skymaps-thumb',ltxt='Skymaps',file='cartzoom');
         var hovref='';
         var hovimg='';
         if(hovlink.length>0){
