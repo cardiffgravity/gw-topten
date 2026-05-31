@@ -62,7 +62,7 @@ TopTen.prototype.init = function(holderid='top10holder'){
         'distance':{sortcol:'DL',order:'asc',format:'',title:'Distance',show_err:true,
             graph:{type:'bar',bar:'#000000',bar_max:'auto',scale:'distance'}},
         'date':{sortcol:'GPS',valcol:'GPS',order:'asc',format:'date',title:'Detection Date',unit:'UTC',
-            graph:{type:'bar',bar:'#000000',bar_min:1120000000,bar_max:1270000000,scale:'date',marker:true},infotype:'date'},
+            graph:{type:'bar',bar:'#000000',bar_min:1120000000,bar_max:1450000000,scale:'date',marker:true},infotype:'date'},
         // 'FAR':{sortcol:'FAR',order:'asc',format:'',sigfig:2,
         //     graph:{type:'iconfn',icon:imgFARfn,icon_fn:iconFARfn}},
         'Erad':{sortcol:'Erad',order:'dec',format:'',show_err:true,
@@ -70,7 +70,7 @@ TopTen.prototype.init = function(holderid='top10holder'){
         'Lpeak':{sortcol:'lpeak',order:'dec',format:'',show_err:true,
             graph:{type:'icon',icon:'img/bulb.svg',icon_unit:0.1}},
         'SNR':{sortcol:'rho',order:'dec',format:'',default:false,
-            graph:{type:'bar',bar:'#ffffff',bar_img:'img/snrwave.svg',bar_min:0,bar_max:30,bar_height:'3em',scale:'SNR'}},
+            graph:{type:'bar',bar:'#ffffff',bar_img:'img/snrwave.svg',bar_min:0,bar_max:90,bar_height:'3em',scale:'SNR'}},
     };
     this.scales={
         distance:[{xfn:function(){return _t10.getBarMin()},lfn:function(){return (_t10.getBarMin()==0)?0:_t10.getBarMin()+' Mpc'}},
@@ -89,17 +89,17 @@ TopTen.prototype.init = function(holderid='top10holder'){
             {x:20,l:''},{x:30,l:''},{x:40,l:''},{x:50,l:''},
             {x:60,l:''},{x:70,l:''},{x:80,l:''},{x:90,l:''},{x:100,l:'100 deg<sup>2</sup>'},
             {x:200,l:''},{x:300,l:''},{x:400,l:''},{x:500,l:''},
-            {x:600,l:''},{x:700,l:''},{x:800,l:''},{x:900,l:''},{x:1000,l:'1000 deg<sup>2</sup>'},
+            {x:600,l:''},{x:700,l:''},{x:800,l:''},{x:900,l:''},{x:1000,l:'1,000 deg<sup>2</sup>'},
             {x:2000,l:''},{x:3000,l:''},{x:4000,l:''},{x:5000,l:''},
-            {x:6000,l:''},{x:7000,l:''},{x:8000,l:''},{x:9000,l:''},{x:10000,l:'1000 deg<sup>2</sup>'},
-            {x:20000,l:''},{x:30000,l:''},{x:40000,l:'40000 deg<sup>2</sup>'}
+            {x:6000,l:''},{x:7000,l:''},{x:8000,l:''},{x:9000,l:''},{x:10000,l:'10,000 deg<sup>2</sup>'},
+            {x:20000,l:''},{x:30000,l:''},{x:40000,l:'40,000 deg<sup>2</sup>'}
         ],
         ratio:[{x:0,l:0},
             {x:0.1,l:''},{x:0.2,l:''},{x:0.3,l:''},{x:0.4,l:''},{x:0.5,l:0.5},
             {x:0.6,l:''},{x:0.7,l:''},{x:0.8,l:''},{x:0.9,l:''},{x:1,l:1}
         ],
         SNR:[{xfn:function(){return _t10.getBarMin();},lfn:function(){return _t10.getBarMin();}},
-            {x:0,l:0},{x:10,l:10},{x:20,l:20},{x:30,l:30},{x:40,l:40},
+            {x:0,l:0},{x:10,l:10},{x:20,l:20},{x:30,l:30},{x:40,l:40},{x:50,l:50},{x:60,l:60},{x:70,l:70},{x:80,l:80},{x:90,l:90},
             {xfn:function(){return _t10.getBarMax();},lfn:function(){return _t10.getBarMax();}}
         ],
         date:[{x:1126051217,l:''},{x:1137254417,l:''},
@@ -107,7 +107,9 @@ TopTen.prototype.init = function(holderid='top10holder'){
             {x:1164556817,l:''},{x:1187733618,l:''},
             {x:1176145217,l:'O2',noline:true},
             {x:1238112018,l:''},{x:1269363618,l:''},
-            {x:1253737818,l:'O3',noline:true}
+            {x:1253737818,l:'O3',noline:true},  
+            {x:1366556418,l:''},{x:1447545617,l:''},
+            {x:1407051017,l:'O4',noline:true}
         ]
     }
     if (!this.lists[this.listName]){
@@ -466,6 +468,9 @@ TopTen.prototype.addinfo = function(d,_l){
             // console.log(link);
             hovimg='<img class="infoimg skyloc" src="'+hovlink[0].url+'">'
             hovref='<div class="infolink skyloc"><a title="'+hovlink[0].text+'" href="'+hovlink[0].url+'">'+hovlink[0].text+'</a></div>';
+        }else{
+            hovimg=''
+            hovref='<div class="infolink skyloc">No image available</div>';
         }
         // console.log(l,n,hovlink,hovref)
         // evdiv=d3.select('#item-'+d.tt.n);
