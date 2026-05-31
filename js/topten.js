@@ -390,25 +390,20 @@ TopTen.prototype.makeList = function(){
             _t10.addicons(d,_l);
         }
     })
-    // Delay height check to allow content to render
-    setTimeout(function(){
-        ldiv.each(function(d){
-            if (this.clientHeight > 2.5*em2px){
-                let newclass="vctr";
-                if (this.clientHeight > 4.5*em2px){
-                    newclass="vctr2";
+    // Use ResizeObserver to watch for height changes as content loads
+    if (typeof ResizeObserver !== 'undefined') {
+        const resizeObserver = new ResizeObserver(entries => {
+            entries.forEach(entry => {
+                const item = entry.target;
+                if (item.clientHeight > 2.5*em2px){
+                    let newclass = item.clientHeight > 4.5*em2px ? "vctr2" : "vctr";
+                    d3.select(item).selectAll('.evname, .evnum').classed('vctr', false).classed('vctr2', false);
+                    d3.select(item).selectAll('.evname, .evnum').classed(newclass, true);
                 }
-                var evname = d3.select('#'+this.id+' > .evname');
-                var evnum = d3.select('#'+this.id+' > .evnum');
-                if (evname.node()) {
-                    evname.classed(newclass, true);
-                }
-                if (evnum.node()) {
-                    evnum.classed(newclass, true);
-                }
-            }
-        })
-    }, 5)
+            });
+        });
+        ldiv.each(function() { resizeObserver.observe(this); });
+    }
     if (_l.graph.scale){
         d3.select('#list-scale').classed('hidden',false)
         _t10.addScale(_l)
