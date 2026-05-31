@@ -390,12 +390,25 @@ TopTen.prototype.makeList = function(){
             _t10.addicons(d,_l);
         }
     })
-    ldiv.each(function(d){
-        // console.log(this);
-        if (this.clientHeight > 2.5*em2px){
-            d3.select('#'+this.id+' > .evname').node().classList.add('vctr')
-        }
-    })
+    // Delay height check to allow content to render
+    setTimeout(function(){
+        ldiv.each(function(d){
+            if (this.clientHeight > 2.5*em2px){
+                let newclass="vctr";
+                if (this.clientHeight > 4.5*em2px){
+                    newclass="vctr2";
+                }
+                var evname = d3.select('#'+this.id+' > .evname');
+                var evnum = d3.select('#'+this.id+' > .evnum');
+                if (evname.node()) {
+                    evname.classed(newclass, true);
+                }
+                if (evnum.node()) {
+                    evnum.classed(newclass, true);
+                }
+            }
+        })
+    }, 5)
     if (_l.graph.scale){
         d3.select('#list-scale').classed('hidden',false)
         _t10.addScale(_l)
@@ -451,12 +464,13 @@ TopTen.prototype.gethtml = function(d,_l){
     if (datalink.length>0){
         htmllink='<a target="_blank" href="'+datalink[0].url+'"><span class="datalink">i</span></a>';
     }
+    htmlnum='<div class="evnum">'+(d.tt.n+1)+'</div>';
     htmlname=(namelink) ? '<div class="evname">'+namelink+d.name+'</a></div>' : '<div class="evname">'+htmllink+d.name+'</div>';
     htmlicon='<div class="evgraph"></div>';
     htmlval='<div class="evval">'+val+'</div>';
     // htmlhov='<div class="info">'+this.getinfo(l,n)+'</div>';
     // htmlerr
-    return(htmlname+htmlicon+htmlval+htmlerr)
+    return(htmlnum+htmlname+htmlicon+htmlval+htmlerr)
 }
 TopTen.prototype.addinfo = function(d,_l){
     var ih="",iw="",it="",ib="";

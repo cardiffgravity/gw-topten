@@ -128,6 +128,9 @@ p.intro{
     transition-timing-function: ease-in-out;
     margin-bottom:1em;
 }
+.evnum{
+    display:inline-block;
+}
 .evname, .evgraph, .evval, .listname, .listunit, .listorder{
     display:inline-block;
     position:relative;
@@ -224,13 +227,31 @@ p.intro{
 .Marginal{
     background-color:#e1f4fe;
 }
+.evnum{
+    width:2em;
+    height:1.5em;
+    padding-top:0.5em;
+    border-radius:2em;
+    position:absolute;
+    background-color: #7c52a1;
+    color:#e9e2ef;
+    text-align:center;
+    margin-top:-0.5em;
+}
 .evname{
-    width:15em;
+    width:13em;
     text-align:right;
     position:absolute;
+    margin-left:1.5em;
     /* transform:translate3d(0,-25%,0); */
 }
-.evname.vctr{
+.vctr{
+    top:40%;
+}
+/* .evnum.vctr{ */
+    /* top:30%; */
+/* } */
+.evnum.vctr2, .evname.vctr2{
     top:50%;
 }
 .list-item .evname{
